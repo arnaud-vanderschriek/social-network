@@ -5,7 +5,10 @@ require('dotenv').config({path: './config/.env'})
 require('./config/db')
 
 
-
+app.use(express.json());
+app.use(express.urlencoded({
+  extended: true
+}));
 
 //routes
 app.use('/api/user', userRoutes)

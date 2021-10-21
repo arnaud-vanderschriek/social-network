@@ -2,20 +2,21 @@ const mongoose = require('mongoose');
 const { isEmail } = require('validator')
 const bcrypt = require('bcrypt')
 
+
 const userSchema = new mongoose.Schema(
   {
     pseudo: {
       type: String,
       required: true,
-      minlength: 3,
-      maxlength: 55,
+      minLength: 3,
+      maxLength: 6,
       unique: true,
       trim: true
     },
     email: {
       type: String,
       required: true,
-      validate: [isEmail],
+      validate: isEmail,
       lowercase: true,
       trim: true
     },
@@ -31,7 +32,6 @@ const userSchema = new mongoose.Schema(
     },
     bio: {
       type: String,
-      required: true,
       max: 1024,
     },
     followers: {

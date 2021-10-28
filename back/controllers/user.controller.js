@@ -64,6 +64,38 @@ module.exports.follow = async (req, res, next) => {
     await UserModel.findByIdAndUpdate(
       req.params.id,
       { $addToSet: { following: req.body.idToFollow } },
+      { new: true, upsert: true },
+      (err, docs) => {
+        if (!err) res.status(201).json(docs);
+        if (err) res.status(400).json(err);
+      }
+    );
+
+    await UserModel.findByIdAndUpdate(
+      req.body.idToFollow,
+      { $addToSet: { followers: req.params.id } },
+      { new: true, upsert: true },
+      (err, docs) => {
+        // if (!err) return res.status(201).json(docs);
+        if (err) return res.status(400).res.json(err);
+      }
+    );
+  } catch (err) {
+    res.status(400).json(err);
+  }
+};
+
+module.exports.unFollow = async (req, res) => {
+  if (
+    !ObjectID.isValid(req.params.id) ||
+    !ObjectID.isValid(req.body.idToFollow)
+  )
+    return res.status(400).send("ID_unknown :" + req.params.id);
+
+  try {
+    await UserModel.findByIdAndUpdate(
+      req.params.id,
+      { $addToSet: { following: req.body.idToFollow } },
       { new: true, upsert: true, set: false },
       (err, docs) => {
         if (!err) res.status(201).json(docs);
@@ -76,21 +108,11 @@ module.exports.follow = async (req, res, next) => {
       { $addToSet: { followers: req.params.id } },
       { new: true, upsert: true, set: false },
       (err, docs) => {
-        if (err) return res.status(400).json(err);
+        // if (!err) return res.status(201).json(docs);
         if (err) return res.status(400).res.json(err);
       }
     );
   } catch (err) {
     res.status(400).json(err);
-  }
-};
-
-module.exports.unFollow = async (req, res) => {
-  if (!ObjectID.isValid(req.params.id))
-    return res.status(400).send("ID_unknown :" + req.params.id);
-
-  try {
-  } catch (err) {
-    return res.status(500).json({ message: err });
   }
 };

@@ -52,7 +52,7 @@ module.exports.deleteUser = async (req, res) => {
   }
 };
 
-module.exports.follow = async (req, res) => {
+module.exports.follow = async (req, res, next) => {
   if (
     !ObjectID.isValid(req.params.id) ||
     !ObjectID.isValid(req.body.idToFollow)
@@ -64,22 +64,24 @@ module.exports.follow = async (req, res) => {
     await UserModel.findByIdAndUpdate(
       req.params.id,
       { $addToSet: { following: req.body.idToFollow } },
-      { new: true, upsert: true },
+      { new: true, upsert: true, set: false },
       (err, docs) => {
         if (!err) res.status(201).json(docs);
-        else return res.status(400).json(err);
+        if (err) res.status(400).json(err);
       }
     );
-    //add the following list
+
     await UserModel.findByIdAndUpdate(
       req.body.idToFollow,
       { $addToSet: { followers: req.params.id } },
-      { new: true, upsert: true },
-      (err, docs) => { if (err) return res.status(400).json(err); } 
+      { new: true, upsert: true, set: false },
+      (err, docs) => {
+        if (err) return res.status(400).json(err);
+        if (err) return res.status(400).res.json(err);
+      }
     );
   } catch (err) {
-    // return res.status(500).json({message: err})
-    console.log(err);
+    res.status(400).json(err);
   }
 };
 

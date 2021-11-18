@@ -1,5 +1,7 @@
 const UserModel = require("../models/user.model");
-const jwt = require("jsonwebtoken")
+const jwt = require("jsonwebtoken");
+const helpersJwt = require("../helpers/jwt");
+
 
 module.exports.signUp = async (req, res) => {
   const { pseudo, email, password } = req.body;
@@ -12,14 +14,15 @@ module.exports.signUp = async (req, res) => {
   }
 };
 
-module.exports.login = async (req, res) => {
-  const { email, password} = req.body
+module.exports.signIn = async (req, res) => {
+  const { email, password } = req.body;
 
   try {
-    const user = await UserModel.login({ email, password });
-    const token = createToken(user._id)
-
+    const user = await UserModel.login(email, password);
+    const token = helpersJwt.createToken(user._id);
+    res.cookie("jwt", token, { httpOnly: true, maxAge: helpersJwt.maxAge });
+    res.status(200).json({ user: user._id });
   } catch (err) {
-
+    res.status(200).json(err);
   }
-}
+};

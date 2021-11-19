@@ -2,7 +2,6 @@ const UserModel = require("../models/user.model");
 const jwt = require("jsonwebtoken");
 const helpersJwt = require("../helpers/jwt");
 
-
 module.exports.signUp = async (req, res) => {
   const { pseudo, email, password } = req.body;
 
@@ -25,4 +24,9 @@ module.exports.signIn = async (req, res) => {
   } catch (err) {
     res.status(200).json(err);
   }
+};
+
+module.exports.logout = async (req, res) => {
+  res.cookie("jwt", "", { maxAge: 1 });
+  res.redirect("/");
 };
